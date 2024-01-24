@@ -1,89 +1,95 @@
-import { View, Text, Pressable } from "react-native";
 import React from "react";
+import { Text, TouchableOpacity } from "react-native";
 import { cn } from "../../lib/utils";
 
-interface buttonProps {
-  style?: string;
-  textStyle?: string;
+// NOTE: props defination for button extending all the props from TouchableOpacity
+interface buttonProps
+  extends React.ComponentPropsWithoutRef<typeof TouchableOpacity> {
+  style?: object | object[];
+  classname?: string;
+  textClass?: string;
   variant?: "ghost" | "outline" | "link" | "secondary" | "distructive";
   size?: "sm" | "md" | "lg" | "icon";
   children: React.ReactNode;
   wfull?: boolean;
   elevated?: boolean;
+  textStyle?: object | object[];
 }
 
+// Button component
 const Button: React.FC<buttonProps> = ({
   style,
   variant,
+  classname,
   size,
   children,
   wfull,
-  textStyle,
+  textClass,
   elevated,
+  textStyle,
+  ...props
 }) => {
+  // NOTE: different background and size styles according to Button variants
+  const Variants = cn(
+    // default styling
+    `p-4 bg-neutral-800 rounded-md flex justify-center items-center`,
+    // Variants
+    variant === "ghost" && "bg-transparent",
+    variant === "outline" && "border border-neutral-600 bg-transparent",
+    variant === "link" &&
+      "bg-transparent px-1 py-1 border-b border-neutral-800",
+    variant === "secondary" && "bg-neutral-200",
+    variant === "distructive" && "bg-red-500 shadow-rose-600",
+    // size
+    size === "sm" && variant !== "link" && "px-8 py-3",
+    size === "lg" && variant !== "link" && "px-14 py-4",
+    size === "icon" && variant !== "link" && "h-14 w-14",
+    size === "md" && variant !== "link" && "px-12 py-3",
+    // special cases
+    wfull && "w-full",
+    elevated &&
+      `shadow-xl ${
+        variant === "distructive" ? "shadow-rose-600" : "shadow-black/50"
+      }`,
+    // custom classname
+    classname
+  );
+
+  // NOTE: different text styles according to Button variants
+  const textVariants = cn(
+    // default styling
+    `rounded-md flex justify-center items-center text-white`,
+    // variants
+    variant === "ghost" && "text-neutral-800",
+    variant === "outline" && "text-neutral-800",
+    variant === "link" && "text-neutral-800",
+    variant === "secondary" && "text-neutral-800",
+    variant === "distructive" && "text-red-50",
+    // size
+    size === "sm" && "text-base",
+    size === "lg" && "text-2xl font-normal",
+    size === "md" && "text-xl font-normal ",
+    // custom classname
+    textClass
+  );
+
+  // return button component
   return (
-    <View
-      className={cn(
-        `px-12 py-3 bg-neutral-800 rounded-md flex justify-center items-center`,
-        variant === "ghost"
-          ? "bg-neutral-100"
-          : variant === "outline"
-          ? "border border-neutral-800 bg-neutral-100"
-          : variant === "link"
-          ? "bg-transparent p-1 border-b border-neutral-800"
-          : variant === "secondary"
-          ? "bg-neutral-200 "
-          : variant === "distructive"
-          ? "bg-red-500 shadow-rose-600"
-          : "",
-        size === "sm"
-          ? "px-8 py-3"
-          : size === "lg"
-          ? "px-14 py-4"
-          : size === "icon"
-          ? "p-5"
-          : "",
-        wfull ? "w-full " : "",
-        style ? style : ""
-      )}
-      style={{
-        elevation: elevated ? 20 : 0,
-        shadowColor: variant === "distructive" ? "red" : "black",
-      }}
+    <TouchableOpacity
+      {...props}
+      activeOpacity={0.5}
+      className={Variants}
+      style={style}
     >
-      <Pressable>
-        {size !== "icon" ? (
-          <Text
-            className={cn(
-              `rounded-md flex justify-center items-center text-white`,
-              variant === "ghost"
-                ? "text-neutral-800"
-                : variant === "outline"
-                ? "text-neutral-800"
-                : variant === "link"
-                ? "text-neutral-800"
-                : variant === "secondary"
-                ? "text-neutral-800"
-                : variant === "distructive"
-                ? "text-red-50"
-                : "",
-              size === "sm"
-                ? "text-base"
-                : size === "lg"
-                ? "text-2xl font-semibold"
-                : size === "md"
-                ? "text-xl font-normal"
-                : "",
-              textStyle
-            )}
-          >
-            {children}
-          </Text>
-        ) : (
-          children
-        )}
-      </Pressable>
-    </View>
+      {/* NOTE: will return text if the size prop !== icon otherwise it will only return childrens */}
+      {size !== "icon" ? (
+        <Text className={textVariants} style={textStyle}>
+          {children}
+        </Text>
+      ) : (
+        children
+      )}
+    </TouchableOpacity>
   );
 };
 
